@@ -101,8 +101,6 @@ special_set = set(["<", ">", "<>", ">=", "<="])
 others = other_tokens_set - special_set
 
 if __name__ == '__main__':
-	#id_pattern = re.compile("^[a-zA-Z][a-zA-Z0-9]*$")
-	#const_pattern = re.compile("(^0$)|(^[1-9]\d*$)")
 	with open("source.xian", "r") as xian:
 		readlines = xian.readlines()
 		#print readlines
