@@ -52,6 +52,14 @@ or_test         = 261
 comp_operator   = 262
 assignment_stmt = 263
 
+E_1 = 264
+E_2 = 265
+E_3 = 266
+E_4 = 267
+E_5 = 268
+E_6 = 269
+
+
 #keywords
 keywords = {
 			"begin":BEGIN,
@@ -90,8 +98,24 @@ other_tokens = {
 			")":RPAR
 				}
 
+ACTION = 	{
+			"id":[5, -1, -1, -1, 5, -1, 5, 5, -1, -1, -1, -1],
+			"+":[-1, 6, E_2, E_4, -1, E_6, -1, -1, 6, E_1, E_3, E_5],
+			"*":[-1, -1, 7, E_4, -1, E_6, -1, -1, -1, 7, E_3, E_5],
+			"(":[4, -1, -1, -1, 4, -1, 4, 4, -1, -1, -1, -1],
+			")":[-1, -1, E_2, E_4, -1, E_6, -1, -1, 11, E_1, E_3, E_5],
+			"$":[-1, ACC, E_2, E_4, -1, E_6, -1, -1, -1, E_1, E_3, E_5]
+			}
+
+GOTO   =	{
+			"E":[1, None, None, None, 8, None, None, None, None, None, None, None],
+			"T":[2, None, None, None, 2, None, 9, None, None, None, None, None],
+			"F":[3, None, None, None, 3, None, 3, 10, None, None, None, None]
+			}
+
 global linecount
 #state     = 0
+statestack = []
 idtable   = []
 constants = []
 tokens    = []
@@ -173,12 +197,72 @@ if __name__ == '__main__':
 					else:
 					 	print "Error in line", count
 					 	break
-		# print "idtable:"
-		# print idtable
-		# print "constants:"
-		# print constants
-		print "tokens:",tokens
-		print "Total lines of the source file:", linecount
+	# print "idtable:"
+	# print idtable
+	# print "constants:"
+	# print constants
+	# print "tokens:",tokens
+	# print "Total lines of the source file:", linecount
+	tokens.append(("$", "$"))
+	tokens.reverse()
+	# print tokens
+	x, y = tokens.pop()
+	print x, y
+	statestack.append(0)
+	while True:
+		if not len(statestack):
+			statestack.append(0)
+		top = statestack[-1]
+		if ACTION[x][top] < 30 and ACTION[x][top] != -1 and ACTION[x][top] != ACC:
+			statestack.append(ACTION[x][top])
+			if  len(tokens):
+				x, y = tokens.pop()
+				print x, y
+		elif ACTION[x][top] <= E_6 and ACTION[x][top] >= E_1:
+			state = ACTION[x][top]
+			if state == E_1:
+				for i in range(3):
+					statestack.pop()
+				top2 = statestack[-1]
+				statestack.append(GOTO["E"][top2])
+				print "E->E+T"
+			elif state == E_2:
+				statestack.pop()
+				top2 = statestack[-1]
+				statestack.append(GOTO["E"][top2])
+				print "E->T"
+			elif state == E_3:
+				for i in range(3):
+					statestack.pop()
+				top2 = statestack[-1]
+				statestack.append(GOTO["T"][top2])
+				print "T->T*F"
+			elif state == E_4:
+				statestack.pop()
+				top2 = statestack[-1]
+				statestack.append(GOTO["T"][top2])
+				print "T->F"
+			elif state == E_5:
+				for i in range(3):
+					statestack.pop()
+				top2 = statestack[-1]
+				statestack.append(GOTO["F"][top2])
+				print "F->(E)"
+			elif state == E_6:
+				statestack.pop()
+				top2 = statestack[-1]
+				statestack.append(GOTO["F"][top2])
+				print "F->id"
+		elif ACTION[x][top] == ACC:
+				print "Accept!"
+				break
+		else:
+			print "Error!"
+			break
+				
+
+
+
 	
 
 
